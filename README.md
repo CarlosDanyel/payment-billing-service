@@ -1,84 +1,47 @@
-# Tech Challenge — Fase 3: Sistema Distribuído de Ordens de Serviço (Saga Pattern)
+# Tech Challenge — Fase 3: Payment & Billing Microservice (`payment-billing-service`)
 
-Projeto de arquitetura distribuída em microsserviços para gestão de oficinas mecânicas com múltiplas filiais, garantindo resiliência, consistência transacional e tolerância a falhas.
-
----
-
-## 🛠️ Microsserviços e Arquitetura
-
-O sistema é dividido em microsserviços especializados, cada um com seu próprio repositório, banco de dados e responsabilidade bem definida:
-
-- **`ordem-de-service` (Service Order)**: Gestão de abertura de OS, diagnósticos, execução e atualização de status.
-  - Banco de Dados: MySQL (`oficina_db`)
-- **`payment-billing` (Billing Service)**: Geração de cobranças, integração PIX via Mercado Pago e Webhooks.
-  - Banco de Dados: MySQL (`payment_db`)
-- **`notification-service` (Notification Service)**: Disparo de e-mails via Resend API e auditoria.
-  - Banco de Dados: MongoDB (`notification_db`)
-- **Mensageria**: RabbitMQ (Broker AMQP para orquestração da Saga Coreografada)
+Serviço responsável pela geração de cobranças, processamento de pagamentos integrados ao **Mercado Pago (PIX)** e recebimento de webhooks de notificação financeira.
 
 ---
 
-## 🔄 Saga Pattern (Coreografia)
+## 🏛️ Arquitetura do Serviço
 
-Optamos pela **Saga Coreografada** via eventos no RabbitMQ para evitar ponto único de falha e garantir o desacoplamento dos serviços.
+Construído sob a **Clean Architecture** garantindo isolamento total do domínio financeiro:
 
-### Fluxo Transacional:
-1. `ordem-de-service` cria a OS e envia o evento `QuotationCreatedEvent`.
-2. `notification-service` consome o evento e dispara o e-mail de aprovação.
-3. `payment-billing` recebe o pagamento do Mercado Pago e emite `PaymentApprovedEvent`.
-4. `ordem-de-service` consome a aprovação e finaliza a OS (`DELIVERED`).
-5. **Rollback Compensatório**: Se o pagamento falhar (`PaymentFailedEvent`), a OS é automaticamente cancelada (`CANCELED`).
+- **Domain Layer (`domain`)**: Entidade `Payment` com estados de pagamento (`PENDING`, `APPROVED`, `REJECTED`, `CANCELLED`).
+- **Application Layer (`application`)**: Caso de Uso `ProcessPaymentUseCase` para gerenciamento da cobrança e notificação Webhook.
+- **Infrastructure Layer (`infrastructure`)**: Adaptador Mercado Pago SDK, persistência em MySQL exclusivo (`payment_db`) e emissão dos eventos de Saga (`PaymentApprovedEvent` e `PaymentFailedEvent`) via RabbitMQ.
 
----
-
-## 🚀 Como Executar o Projeto
-
-### Pré-requisitos
-- Docker e Docker Compose instalados.
-
-### Passo a Passo
-
-1. **Estrutura de Pastas:**
-   Certifique-se de que os repositórios estejam na mesma pasta pai:
-   ```text
-   fase-3/
-   ├── oficina-infra/
-   ├── ordem-de-service/
-   ├── payment-billing/
-   └── notification-service/
-   ```
-
-2. **Iniciar todos os Serviços:**
-   Navegue até a pasta de infraestrutura e rode o comando:
-   ```bash
-   cd oficina-infra
-   docker-compose up -d --build
-   ```
-
-3. **Verificar os Contêineres:**
-   ```bash
-   docker-compose ps
-   ```
-
-4. **Painéis e Documentação (Swagger):**
-   - **RabbitMQ Management**: http://localhost:15672 (`guest` / `guest`)
-   - **OS Service API**: http://localhost:8080/swagger-ui.html
-   - **Payment Billing API**: http://localhost:8081/swagger-ui.html
-   - **Notification API**: http://localhost:8082/swagger-ui.html
+```text
+com.fiap.tech_challenge_fase2/
+├── application/       # Use Cases, Ports (In/Out), DTOs
+├── domain/            # Payment Entity, Enums, Value Objects
+└── infrastructure/    # Mercado Pago Gateway, MySQL JPA, RabbitMQ Saga Publisher
+```
 
 ---
 
-## 🧪 Testes e BDD
+## 📬 Coleção do Postman
 
-Para executar os testes unitários e o fluxo BDD com Cucumber:
+O arquivo da coleção de chamadas da API de Pagamentos está disponível em:
+- [postman_collection.json](./postman_collection.json)
+
+---
+
+## 🚀 Como Executar o Microsserviço Localmente
+
+### Pré-requisitos:
+- Java 17 e Maven instalados.
+- MySQL rodando na porta `3308` e RabbitMQ na porta `5672`.
+
+### Comandos:
 
 ```bash
-# Executar testes no Service Order (inclui Cucumber BDD)
-cd ../ordem-de-service && ./mvnw clean test
+# Executar testes unitários e de integração
+./mvnw clean test
 
-# Executar testes no Payment Billing
-cd ../payment-billing && ./mvnw clean test
-
-# Executar testes no Notification Service
-cd ../notification-service && ./mvnw clean test
+# Subir a aplicação na porta 8081
+./mvnw spring-boot:run
 ```
+
+- **Swagger UI**: http://localhost:8081/swagger-ui.html
