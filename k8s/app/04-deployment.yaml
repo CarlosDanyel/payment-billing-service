@@ -1,18 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oficina-app
+  name: payment-billing-service
   namespace: fiap-oficina
   labels:
-    app: tech-challenge-fase2
+    app: payment-billing-service
     version: "1.0.0"
-  annotations:
-    deployment.kubernetes.io/revision: "1"
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: tech-challenge-fase2
+      app: payment-billing-service
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -21,28 +19,15 @@ spec:
   template:
     metadata:
       labels:
-        app: tech-challenge-fase2
+        app: payment-billing-service
         version: "1.0.0"
     spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                        - tech-challenge-fase2
-                topologyKey: kubernetes.io/hostname
-
       containers:
-        - name: oficina-app
-          image: tech-challenge-fase2:latest
+        - name: payment-billing-service
+          image: payment-billing-service:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8080
+            - containerPort: 8081
               name: http
 
           envFrom:
