@@ -7,6 +7,12 @@ Serviço responsável pela geração de cobranças, processamento de pagamentos 
 
 ---
 
+## 🚀 Configuração Inicial
+
+Copie o arquivo [`.env.example`](./.env.example) para `.env` na raiz do projeto e em [`k8s/`](./k8s/.env.example) antes de executar o serviço.
+
+---
+
 ## 🛠️ Tecnologias Utilizadas
 
 - **Linguagem & Framework**: Java 17, Spring Boot 3.3.5
@@ -17,7 +23,6 @@ Serviço responsável pela geração de cobranças, processamento de pagamentos 
 - **Testes & Cobertura**: JUnit 5, Mockito, Cucumber (BDD), JaCoCo
 - **Containerização & Orquestração**: Docker, Kubernetes (Kustomize)
 
----
 
 ## 📐 Documentação da Arquitetura do Serviço
 
@@ -62,21 +67,6 @@ Os testes unitários e BDD garantem a confiabilidade do serviço com cobertura s
 ### Relatório de Cobertura de Testes (JaCoCo)
 
 ![Relatório de Cobertura JaCoCo](./.docs/coverage.png)
-
----
-
-## 🔧 Configuração de Ambiente
-
-Para rodar o serviço localmente, é necessário configurar as variáveis de ambiente:
-
-- **Docker (raiz do projeto)**: Crie um arquivo `.env` baseado no [`.env.example`](./.env.example) na raiz do projeto.
-- **Kubernetes**: Crie um arquivo `.env` baseado no [`.env.example`](./k8s/.env.example) dentro do diretório [`k8s/`](./k8s/).
-
-As variáveis incluem credenciais do MySQL, RabbitMQ e token de acesso do Mercado Pago.
-
-> [!NOTE]
-> Para instruções detalhadas de implantação e inicialização, consulte o repositório [**oficina-infra**](https://github.com/CarlosDanyel/oficina-infra).
-
 ---
 
 ## 📑 Swagger UI e Coleção Postman
