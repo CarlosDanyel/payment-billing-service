@@ -26,7 +26,7 @@ Copie o arquivo [`.env.example`](./.env.example) para `.env` na raiz do projeto 
 
 ## 📐 Documentação da Arquitetura do Serviço
 
-Projetado seguindo a **Arquitetura Hexagonal (Ports and Adapters)** garantindo o isolamento total do domínio financeiro e desacoplamento das dependências externas.
+Projetado seguindo a **Arquitetura Clean Architecture** garantindo o isolamento total do domínio financeiro e desacoplamento das dependências externas.
 
 ### Estrutura de Pacotes
 
