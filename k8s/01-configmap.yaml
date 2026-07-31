@@ -4,14 +4,17 @@ metadata:
   name: oficina-config
   namespace: fiap-oficina
   labels:
-    app: tech-challenge-fase2
+    app: payment-billing-service
 data:
-  DB_HOST: "mysql"
+  DB_HOST: "mysql-payment"
   DB_PORT: "3306"
-  DB_NAME: "oficina_db"
+  DB_NAME: "payment_db"
   DB_USERNAME: "oficina_user"
+  RABBITMQ_HOST: "rabbitmq"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USERNAME: "guest"
   APP_BASE_URL: "https://api.oficina.com"
-  RESEND_FROM_EMAIL: "oficina@fabrincahub.com"
+  MERCADO_PAGO_NOTIFICATION_URL: "https://api.oficina.com/api/payments/webhook"
   SPRING_JPA_SHOW_SQL: "false"
   SPRING_JPA_HIBERNATE_DDL_AUTO: "validate"
   LOGGING_LEVEL_COM_FIAP: "INFO"

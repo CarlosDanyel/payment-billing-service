@@ -11,8 +11,7 @@ CREATE TABLE IF NOT EXISTS payments
     ticket_url        TEXT,
     created_at        DATETIME(6)    NOT NULL,
     updated_at        DATETIME(6)    NOT NULL,
-    CONSTRAINT pk_payments PRIMARY KEY (id),
-    CONSTRAINT fk_payment_service_order FOREIGN KEY (service_order_id) REFERENCES service_orders (id)
+    CONSTRAINT pk_payments PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;

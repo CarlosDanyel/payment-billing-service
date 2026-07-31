@@ -3,5 +3,5 @@ kind: Namespace
 metadata:
   name: fiap-oficina
   labels:
-    app: tech-challenge-fase2
+    app: payment-billing-service
     environment: production

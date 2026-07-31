@@ -2,15 +2,15 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: oficina-hpa
+  name: payment-billing-hpa
   namespace: fiap-oficina
   labels:
-    app: tech-challenge-fase2
+    app: payment-billing-service
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: oficina-app
+    name: payment-billing-service
 
   minReplicas: 2
   maxReplicas: 10

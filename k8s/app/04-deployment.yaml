@@ -40,11 +40,11 @@ spec:
                 secretKeyRef:
                   name: oficina-secrets
                   key: DB_PASSWORD
-            - name: RESEND_API_KEY
+            - name: MERCADO_PAGO_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: oficina-secrets
-                  key: RESEND_API_KEY
+                  key: MERCADO_PAGO_ACCESS_TOKEN
           resources:
             requests:
               cpu: "250m"
@@ -54,16 +54,16 @@ spec:
               memory: "1Gi"
           livenessProbe:
             httpGet:
-              path: /api/actuator/health/liveness
-              port: 8080
+              path: /actuator/health/liveness
+              port: 8081
             initialDelaySeconds: 60
             periodSeconds: 15
             failureThreshold: 3
             timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: /api/actuator/health/readiness
-              port: 8080
+              path: /actuator/health/readiness
+              port: 8081
             initialDelaySeconds: 45
             periodSeconds: 10
             failureThreshold: 3
@@ -71,8 +71,8 @@ spec:
 
           startupProbe:
             httpGet:
-              path: /api/actuator/health
-              port: 8080
+              path: /actuator/health
+              port: 8081
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 12
