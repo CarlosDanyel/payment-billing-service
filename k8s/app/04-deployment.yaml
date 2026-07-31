@@ -32,7 +32,7 @@ spec:
 
           envFrom:
             - configMapRef:
-                name: oficina-config
+                name: payment-billing-config
 
           env:
             - name: DB_PASSWORD

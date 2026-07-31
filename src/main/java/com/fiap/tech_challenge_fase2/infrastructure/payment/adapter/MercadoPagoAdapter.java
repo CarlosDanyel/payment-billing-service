@@ -23,12 +23,16 @@ public class MercadoPagoAdapter implements PaymentGateway {
     private final String accessToken;
     private final String notificationUrl;
 
+    private boolean isMockToken() {
+        return accessToken == null || accessToken.isBlank() || accessToken.startsWith("TEST-") || "TEST-TOKEN".equals(accessToken);
+    }
+
     public MercadoPagoAdapter(
             @Value("${mercadopago.access-token:TEST-TOKEN}") String accessToken,
             @Value("${mercadopago.notification-url:http://localhost:8080/api/payments/webhook}") String notificationUrl) {
         this.accessToken = accessToken;
         this.notificationUrl = notificationUrl;
-        if (accessToken != null && !accessToken.isBlank() && !"TEST-TOKEN".equals(accessToken)) {
+        if (!isMockToken()) {
             MercadoPagoConfig.setAccessToken(accessToken);
         }
     }
@@ -37,7 +41,7 @@ public class MercadoPagoAdapter implements PaymentGateway {
     public Payment createPayment(String serviceOrderId, BigDecimal amount, String customerEmail) {
         Payment domainPayment = Payment.create(serviceOrderId, amount);
 
-        if (accessToken == null || accessToken.isBlank() || "TEST-TOKEN".equals(accessToken)) {
+        if (isMockToken()) {
             log.warn("Mercado Pago Access Token não configurado ou em ambiente mock. Retornando dados simulados de PIX.");
             domainPayment.updatePaymentDetails(
                     "MP-MOCK-" + System.currentTimeMillis(),
@@ -96,10 +100,10 @@ public class MercadoPagoAdapter implements PaymentGateway {
 
     @Override
     public Payment getPaymentStatus(String externalPaymentId) {
-        if (accessToken == null || accessToken.isBlank() || "TEST-TOKEN".equals(accessToken) || externalPaymentId.startsWith("MP-MOCK-")) {
+        if (isMockToken() || externalPaymentId == null || externalPaymentId.startsWith("MP-MOCK-") || !externalPaymentId.matches("\\d+")) {
             log.warn("Mercado Pago em modo mock. Simulando aprovação de pagamento.");
             Payment mock = Payment.create("mock-so-id", BigDecimal.TEN);
-            mock.updatePaymentDetails(externalPaymentId, PaymentStatus.APPROVED, null, null, null);
+            mock.updatePaymentDetails(externalPaymentId != null ? externalPaymentId : "MP-MOCK-123", PaymentStatus.APPROVED, null, null, null);
             return mock;
         }
 

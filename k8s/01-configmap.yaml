@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: oficina-config
+  name: payment-billing-config
   namespace: fiap-oficina
   labels:
     app: payment-billing-service
