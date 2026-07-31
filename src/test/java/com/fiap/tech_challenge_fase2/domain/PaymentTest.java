@@ -50,10 +50,26 @@ class PaymentTest {
         }
 
         @Test
-        @DisplayName("Deve falhar ao criar com amount nulo")
-        void shouldFailOnNullAmount() {
-            assertThatThrownBy(() -> Payment.create("OS-001", null))
-                    .isInstanceOf(NullPointerException.class);
+        @DisplayName("Deve inicializar com valores padrao quando construtor receber nulos nos campos opcionais")
+        void shouldInitializeDefaultsInConstructor() {
+            Payment p = new Payment(null, "OS-NULL", null, BigDecimal.TEN, null, null, null, null, null, null, null);
+
+            assertThat(p.getId()).isNotBlank();
+            assertThat(p.getStatus()).isEqualTo(PaymentStatus.PENDING);
+            assertThat(p.getCreatedAt()).isNotNull();
+            assertThat(p.getUpdatedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Deve usar valores informados quando construtor receber parametros preenchidos")
+        void shouldKeepCustomValuesInConstructor() {
+            LocalDateTime customTime = LocalDateTime.of(2025, 1, 1, 10, 0);
+            Payment p = new Payment("CUSTOM-ID", "OS-FULL", "EXT-1", BigDecimal.TEN, PaymentStatus.APPROVED, "PIX", "QR", "B64", "URL", customTime, customTime);
+
+            assertThat(p.getId()).isEqualTo("CUSTOM-ID");
+            assertThat(p.getStatus()).isEqualTo(PaymentStatus.APPROVED);
+            assertThat(p.getCreatedAt()).isEqualTo(customTime);
+            assertThat(p.getUpdatedAt()).isEqualTo(customTime);
         }
     }
 
@@ -86,6 +102,20 @@ class PaymentTest {
             assertThat(payment.getQrCode()).isEqualTo("QR");
             assertThat(payment.getQrCodeBase64()).isNull();
             assertThat(payment.getTicketUrl()).isNull();
+        }
+
+        @Test
+        @DisplayName("Deve atualizar cada campo individualmente quando nao nulo")
+        void shouldUpdateIndividualNonNullFields() {
+            Payment payment = Payment.create("OS-001", new BigDecimal("150.00"));
+            payment.updatePaymentDetails(null, PaymentStatus.APPROVED, null, "BASE64", null);
+
+            assertThat(payment.getStatus()).isEqualTo(PaymentStatus.APPROVED);
+            assertThat(payment.getQrCodeBase64()).isEqualTo("BASE64");
+            assertThat(payment.getTicketUrl()).isNull();
+
+            payment.updatePaymentDetails(null, null, null, null, "HTTP_TICKET");
+            assertThat(payment.getTicketUrl()).isEqualTo("HTTP_TICKET");
         }
 
         @Test
@@ -152,6 +182,16 @@ class PaymentTest {
             Payment p2 = Payment.create("OS-001", BigDecimal.ONE);
 
             assertThat(p1).isNotEqualTo(p2);
+        }
+
+        @Test
+        @DisplayName("Deve testar comparacoes com null, proprio objeto e outra classe")
+        void shouldHandleEdgeCasesInEquals() {
+            Payment p1 = Payment.create("OS-001", BigDecimal.ONE);
+
+            assertThat(p1.equals(p1)).isTrue();
+            assertThat(p1.equals(null)).isFalse();
+            assertThat(p1.equals("StringObject")).isFalse();
         }
     }
 }

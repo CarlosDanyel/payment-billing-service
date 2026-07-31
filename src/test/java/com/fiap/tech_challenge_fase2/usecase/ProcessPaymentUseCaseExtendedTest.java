@@ -149,6 +149,21 @@ class ProcessPaymentUseCaseExtendedTest {
         }
 
         @Test
+        @DisplayName("Não deve publicar evento para pagamento REFUNDED")
+        void shouldNotPublishEventOnRefunded() {
+            Payment mockMp = Payment.create("OS-RF", new BigDecimal("50.00"));
+            mockMp.updatePaymentDetails("EXT-RF", PaymentStatus.REFUNDED, null, null, null);
+
+            when(paymentGateway.getPaymentStatus("EXT-RF")).thenReturn(mockMp);
+            when(paymentRepository.findByExternalId("EXT-RF")).thenReturn(Optional.of(mockMp));
+            when(paymentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            useCase.processWebhookNotification("EXT-RF", "payment.updated");
+
+            verify(eventPublisher, never()).publishEvent(anyString(), any());
+        }
+
+        @Test
         @DisplayName("Deve lançar exceção quando pagamento não encontrado por externalId")
         void shouldThrowWhenPaymentNotFound() {
             Payment mockMp = Payment.create("OS-404", BigDecimal.TEN);

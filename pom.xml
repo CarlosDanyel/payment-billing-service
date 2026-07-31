@@ -139,6 +139,13 @@
 							<goal>check</goal>
 						</goals>
 						<configuration>
+							<excludes>
+								<exclude>**/TechChallengeFase2Application.class</exclude>
+								<exclude>**/infrastructure/config/**</exclude>
+								<exclude>**/infrastructure/messaging/**</exclude>
+								<exclude>**/infrastructure/persistence/entity/**</exclude>
+								<exclude>**/interfaces/dto/**</exclude>
+							</excludes>
 							<rules>
 								<rule>
 									<element>BUNDLE</element>

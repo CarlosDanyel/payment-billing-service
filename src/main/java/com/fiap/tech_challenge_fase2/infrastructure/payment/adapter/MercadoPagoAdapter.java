@@ -131,7 +131,7 @@ public class MercadoPagoAdapter implements PaymentGateway {
         }
     }
 
-    private PaymentStatus mapStatus(String mpStatus) {
+    PaymentStatus mapStatus(String mpStatus) {
         if (mpStatus == null) return PaymentStatus.PENDING;
         return switch (mpStatus.toLowerCase()) {
             case "approved" -> PaymentStatus.APPROVED;
