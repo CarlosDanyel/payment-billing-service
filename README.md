@@ -65,6 +65,20 @@ Os testes unitários e BDD garantem a confiabilidade do serviço com cobertura s
 
 ---
 
+## 🔧 Configuração de Ambiente
+
+Para rodar o serviço localmente, é necessário configurar as variáveis de ambiente:
+
+- **Docker (raiz do projeto)**: Crie um arquivo `.env` baseado no [`.env.example`](./.env.example) na raiz do projeto.
+- **Kubernetes**: Crie um arquivo `.env` baseado no [`.env.example`](./k8s/.env.example) dentro do diretório [`k8s/`](./k8s/).
+
+As variáveis incluem credenciais do MySQL, RabbitMQ e token de acesso do Mercado Pago.
+
+> [!NOTE]
+> Para instruções detalhadas de implantação e inicialização, consulte o repositório [**oficina-infra**](https://github.com/CarlosDanyel/oficina-infra).
+
+---
+
 ## 📑 Swagger UI e Coleção Postman
 
 ### 1. Documentação Swagger UI / OpenAPI
