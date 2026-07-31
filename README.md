@@ -2,8 +2,8 @@
 
 Serviço responsável pela geração de cobranças, processamento de pagamentos integrados ao Mercado Pago (PIX) e recebimento de webhooks de notificação financeira no fluxo da oficina mecânica.
 
-> 🚀 **Inicialização do Projeto e Infraestrutura**:
-> A instrução completa de inicialização, infraestrutura e execução da solução está documentada no repositório central **[oficina-infra](https://github.com/CarlosDanyel/oficina-infra)**.
+> [!IMPORTANT]
+> **Inicialização e Execução**: As instruções completas para inicialização, execução local e implantação em ambiente Kubernetes deste microsserviço e do ecossistema encontram-se documentadas no repositório [**oficina-infra**](https://github.com/CarlosDanyel/oficina-infra).
 
 ---
 
@@ -11,52 +11,72 @@ Serviço responsável pela geração de cobranças, processamento de pagamentos 
 
 - **Linguagem & Framework**: Java 17, Spring Boot 3.3.5
 - **Persistência de Dados**: Spring Data JPA, MySQL 8, Flyway Migrations
-- **Mensageria & Saga**: RabbitMQ (AMQP)
+- **Mensageria**: RabbitMQ (Spring AMQP)
 - **Integração Financeira**: Mercado Pago SDK Java
-- **Documentação de API**: OpenAPI 3 / Swagger UI
-- **Testes & Cobertura**: JUnit 5, Mockito, JaCoCo, Cucumber BDD
+- **Documentação de API**: OpenAPI 3 / Swagger UI (`springdoc-openapi`)
+- **Testes & Cobertura**: JUnit 5, Mockito, Cucumber (BDD), JaCoCo
 - **Containerização & Orquestração**: Docker, Kubernetes (Kustomize)
 
 ---
 
-## 🏛️ Arquitetura do Serviço
+## 📐 Documentação da Arquitetura do Serviço
 
-Construído sob os princípios da **Clean Architecture** (Ports and Adapters), garantindo o isolamento total do domínio financeiro:
+Projetado seguindo a **Arquitetura Hexagonal (Ports and Adapters)** garantindo o isolamento total do domínio financeiro e desacoplamento das dependências externas.
+
+### Estrutura de Pacotes
 
 ```text
 com.fiap.tech_challenge_fase2/
-├── domain/            # Payment Entity, Enums, Value Objects
-├── application/       # Use Cases, Ports (In/Out)
-├── infrastructure/    # Mercado Pago Gateway, MySQL JPA Adapter, RabbitMQ Event Publisher
+├── domain/            # Payment Entity, PaymentStatus Enum, Value Objects
+├── application/       # Use Cases (ProcessPaymentUseCase), Ports (In/Out)
+├── infrastructure/    # Mercado Pago Adapter, MySQL JPA Adapter, RabbitMQ Event Publisher
 └── interfaces/        # PaymentController (REST API), DTOs, GlobalExceptionHandler
 ```
 
-### Padrão Saga Coreografado (Choreographed Saga)
+### Participação no Saga Pattern (Coreografado)
 
-Este microsserviço atua como um **participante reativo** no Saga transacional:
+O `payment-billing-service` atua como um **participante reativo** no ecossistema do Saga Pattern Coreografado:
 
-1. **Geração de Cobrança**: Recebe solicitações de cobrança PIX via API REST (`POST /api/payments`).
-2. **Processamento de Webhooks**: Recebe callbacks do Mercado Pago (`POST /api/payments/webhook`) com o status atualizado.
-3. **Publicação de Eventos**:
-   - `PaymentApprovedEvent` (Routing Key: `payment.approved`): Notifica a aprovação para avanço do fluxo da Ordem de Serviço.
-   - `PaymentFailedEvent` (Routing Key: `payment.failed`): Aciona a compensação/rollback da Ordem de Serviço (`CANCELED`).
+- **Geração de Cobrança**: Recebe solicitações de cobrança PIX via API REST e cria o pagamento no Mercado Pago.
+- **Processamento de Webhooks**: Recebe callbacks do Mercado Pago com o status atualizado e consulta o status autoritativo.
+- **Publicação de Eventos**: Notifica o resultado para avanço ou rollback do fluxo da Ordem de Serviço.
 
----
+#### Eventos Publicados
 
-## 📑 Documentação da API (Swagger UI & Postman)
-
-- **Swagger UI**: Disponível em `http://localhost:8081/swagger-ui.html` quando o serviço estiver em execução.
-- **Coleção Postman**: Arquivo da coleção com o fluxo completo do Saga (Happy Path e Rollback):
-  - 📄 **[postman_collection.json](./postman_collection.json)**
+| Evento | Routing Key | Fila RabbitMQ | Ação |
+|---|---|---|---|
+| `PaymentApprovedEvent` | `payment.approved` | `payment.approved.queue` | Notifica a aprovação para avanço do fluxo da Ordem de Serviço |
+| `PaymentFailedEvent` | `payment.failed` | `payment.failed.queue` | Aciona a compensação/rollback da Ordem de Serviço (`CANCELED`) |
 
 ---
 
 ## 📊 Evidências de Cobertura de Testes
 
-O projeto conta com suítes de testes unitários, testes de integração e cenários BDD com Cucumber. A verificação de cobertura é realizada via **JaCoCo** garantindo cobertura de instruções e branches superior a 80%.
+Os testes unitários e BDD garantem a confiabilidade do serviço com cobertura superior a 80% exigidos pela pipeline de CI/CD.
 
-![Evidência de Cobertura de Testes](./.docs/coverage.png)
+```bash
+# Executar a suíte completa de testes e gerar o relatório JaCoCo
+./mvnw clean verify
+```
+
+### Relatório de Cobertura de Testes (JaCoCo)
+
+![Relatório de Cobertura JaCoCo](./.docs/coverage.png)
 
 ---
 
-> ℹ️ Para mais detalhes de implantação, pipelines CI/CD e execução local, consulte o repositório **[oficina-infra](https://github.com/CarlosDanyel/oficina-infra)**.
+## 📑 Swagger UI e Coleção Postman
+
+### 1. Documentação Swagger UI / OpenAPI
+
+Quando o serviço estiver em execução (localmente ou via port-forward no Kubernetes):
+
+- **Swagger UI**: [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
+- **OpenAPI Spec (JSON)**: [http://localhost:8081/api-docs](http://localhost:8081/api-docs)
+- **Health Check**: [http://localhost:8081/actuator/health](http://localhost:8081/actuator/health)
+
+### 2. Coleção do Postman
+
+A coleção do Postman para testes do ecossistema encontra-se no repositório:
+
+- 📬 **[postman_collection.json](./postman_collection.json)**
