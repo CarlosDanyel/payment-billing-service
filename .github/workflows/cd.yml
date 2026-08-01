@@ -13,7 +13,7 @@
 #     3. Aplica Namespace e ConfigMap
 #     4. Cria Secrets com as credenciais reais
 #     5. Deploy da aplicação
-#     6. Aplica Service, Ingress e HPA
+#     6. Aplica Service e HPA
 #     7. Aguarda app ficar pronta
 #     8. Mostra status final
 #

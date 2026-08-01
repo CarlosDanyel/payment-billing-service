@@ -10,6 +10,8 @@ RUN mvn clean package -DskipTests -B
 
 FROM eclipse-temurin:17-jre
 
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+
 RUN groupadd -r fiap && useradd -r -g fiap fiap
 USER fiap
 
