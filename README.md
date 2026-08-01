@@ -84,3 +84,8 @@ Quando o serviço estiver em execução (localmente ou via port-forward no Kuber
 A coleção do Postman para testes do ecossistema encontra-se no repositório:
 
 - 📬 **[postman_collection.json](./postman_collection.json)**
+
+A coleção contempla:
+- **Happy Path**: Abertura OS → Diagnóstico → Orçamento → Aprovação → Pagamento PIX → Entrega
+- **Saga Rollback**: Falha de pagamento → Compensação assíncrona (OS → `CANCELED`)
+- **Tratamento de Falhas e Erros**: Recusa de orçamento, transição inválida (422), 404 Not Found e validação de payloads (400)
