@@ -48,16 +48,21 @@ public class ProcessPaymentUseCaseImpl implements ProcessPaymentUseCase {
     @Override
     public Payment processWebhookNotification(String externalId, String action) {
         log.info("Processando notificação de webhook. ExternalId: {}, Action: {}", externalId, action);
-        
+
         Payment updatedPaymentFromMp = paymentGateway.getPaymentStatus(externalId);
-        
+
         Payment payment = paymentRepository.findByExternalId(externalId)
                 .orElseGet(() -> paymentRepository.findByServiceOrderId(updatedPaymentFromMp.getServiceOrderId())
                         .orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado para externalId: " + externalId)));
 
+        PaymentStatus finalStatus = updatedPaymentFromMp.getStatus();
+        if (action != null && (action.contains("fail") || action.contains("reject"))) {
+            finalStatus = PaymentStatus.REJECTED;
+        }
+
         payment.updatePaymentDetails(
                 updatedPaymentFromMp.getExternalId(),
-                updatedPaymentFromMp.getStatus(),
+                finalStatus,
                 updatedPaymentFromMp.getQrCode(),
                 updatedPaymentFromMp.getQrCodeBase64(),
                 updatedPaymentFromMp.getTicketUrl()

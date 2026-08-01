@@ -101,9 +101,13 @@ public class MercadoPagoAdapter implements PaymentGateway {
     @Override
     public Payment getPaymentStatus(String externalPaymentId) {
         if (isMockToken() || externalPaymentId == null || externalPaymentId.startsWith("MP-MOCK-") || !externalPaymentId.matches("\\d+")) {
-            log.warn("Mercado Pago em modo mock. Simulando aprovação de pagamento.");
+            PaymentStatus mockStatus = PaymentStatus.APPROVED;
+            if (externalPaymentId != null && (externalPaymentId.toUpperCase().contains("REJECT") || externalPaymentId.toUpperCase().contains("FAIL") || externalPaymentId.toUpperCase().contains("CANCEL"))) {
+                mockStatus = PaymentStatus.REJECTED;
+            }
+            log.warn("Mercado Pago em modo mock. Simulando status de pagamento: {}", mockStatus);
             Payment mock = Payment.create("mock-so-id", BigDecimal.TEN);
-            mock.updatePaymentDetails(externalPaymentId != null ? externalPaymentId : "MP-MOCK-123", PaymentStatus.APPROVED, null, null, null);
+            mock.updatePaymentDetails(externalPaymentId != null ? externalPaymentId : "MP-MOCK-123", mockStatus, null, null, null);
             return mock;
         }
 
